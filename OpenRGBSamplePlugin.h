@@ -1,5 +1,5 @@
-#ifndef OPENRGBVISUALMAPPLUGIN_H
-#define OPENRGBVISUALMAPPLUGIN_H
+#ifndef OPENRGBSAMPLEPLUGIN_H
+#define OPENRGBSAMPLEPLUGIN_H
 
 #include "OpenRGBPluginInterface.h"
 #include "ResourceManager.h"
@@ -26,4 +26,4 @@ public:
 
 };
 
-#endif // OPENRGBVISUALMAPPLUGIN_H
+#endif // OPENRGBSAMPLEPLUGIN_H

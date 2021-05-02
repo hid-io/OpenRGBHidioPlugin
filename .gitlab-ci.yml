@@ -1,0 +1,279 @@
+# swy: some useful references; the MSVC part of the CI script is based on the one from bind9, by Michał Kępień:
+# https://gitlab.com/gitlab-org/ci-cd/shared-runners/images/gcp/windows-containers/blob/master/cookbooks/preinstalled-software/README.md
+# https://gitlab.isc.org/isc-projects/bind9/commit/facc6a051fcac70fbbc61cb92a37be8c3e4db5ec#587d266bb27a4dc3022bbed44dfa19849df3044c_718_731
+# https://www.kittell.net/code/powershell-unix-sed-equivalent-change-text-file/
+# https://powershell.org/forums/topic/how-to-use-ansi-vt100-formatting-in-powershell-ooh-pretty-colors/
+
+#-----------------------------------------------------------------------#
+# OpenRGB GitLab CI Configuration                                       #
+#-----------------------------------------------------------------------#
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+.shared_windows_runners:
+  tags:
+  - shared-windows
+  - windows
+
+stages:
+  - build
+
+before_script:
+ - echo "started by ${GITLAB_USER_NAME}"
+
+#reusable templates
+.ccache_init: &ccache_init
+  before_script:
+    - apt update
+    - apt install -y software-properties-common
+    - add-apt-repository ppa:beineri/opt-qt-5.12.2-bionic
+    - add-apt-repository ppa:ubuntu-toolchain-r/test
+    - apt update
+    - apt install -y build-essential qtcreator  qt512tools qt512base qt512declarative qt512webengine libusb-1.0-0-dev libhidapi-dev pkgconf wget git gcc-9 g++-9 libgl1-mesa-dev
+    - rm /usr/bin/gcc
+    - rm /usr/bin/g++
+    - ln -s /usr/bin/gcc-9 /usr/bin/gcc
+    - ln -s /usr/bin/g++-9 /usr/bin/g++
+
+#-----------------------------------------------------------------------#
+# Linux (AppImage) 32-bit Build Target                                  #
+#-----------------------------------------------------------------------#
+"Linux 32":
+  <<: *ccache_init
+  image: ubuntu:bionic
+  stage: build
+  script:
+  - export $(dpkg-architecture)
+  - ./scripts/scripts_build-plugin.sh
+  
+  artifacts:
+    name: "${CI_PROJECT_NAME}_Linux_32_${CI_COMMIT_SHORT_SHA}"
+    paths:
+    - ./libOpenRGBSamplePlugin.so.1.0.0
+    expire_in: 30 days
+
+#-----------------------------------------------------------------------#
+# Linux 64-bit Build Target                                             #
+#-----------------------------------------------------------------------#
+"Linux 64":
+  <<: *ccache_init
+  image: ubuntu:bionic
+  stage: build
+  script:
+  - export $(dpkg-architecture)
+  - ./scripts/scripts_build-plugin.sh
+  
+  artifacts:
+    name: "${CI_PROJECT_NAME}_Linux_64_${CI_COMMIT_SHORT_SHA}"
+    paths:
+    - ./libOpenRGBSamplePlugin.so.1.0.0
+    expire_in: 30 days
+
+#-----------------------------------------------------------------------#
+# Windows (32-bit) Build Target                                         #
+#-----------------------------------------------------------------------#
+"Windows 32":
+  extends:
+  - .shared_windows_runners
+  stage: build
+  script:
+  - $esc = "$([char]27)"
+  - $count = 0
+  - function _unix_tmsec_ { [int64](([datetime]::UtcNow)-(get-date "1/1/1970")).TotalSeconds }
+  - function _fold_start_ { param( [string]$TEXT_TAG ) $t=_unix_tmsec_; $global:count += 1; Write-Host -NoNewLine "`r`n`r`nsection_start:${t}:sect_${count}`r${esc}[0K${esc}[33m${TEXT_TAG}${esc}[39m`r`n"; }
+  - function _fold_final_ {                            $t=_unix_tmsec_;                     Write-Host -NoNewLine   "`r`n`r`nsection_end:${t}:sect_${count}`r${esc}[0K`r`n"           ; }
+
+  - _fold_start_ 'configuring the msvc environment variables'
+  - Push-Location "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Auxiliary/Build"
+  - '& cmd.exe /C "vcvarsall.bat x86 & set" | Foreach-Object { if ($_ -match "(.*?)=(.*)") { Set-Item -force -path "Env:\$($matches[1])" -value "$($matches[2])" } }'
+  - Pop-Location
+  - _fold_final_
+  
+  - _fold_start_ 'downloading precompiled versions of qtbase, qttools (for windeployqt) and jom (for a more parallel nmake)'
+  - mkdir _qt
+  - mkdir _qt_download
+  - Push-Location _qt_download
+  - curl.exe -LJ -o qt-base.7z        'https://qt-mirror.dannhauer.de//online/qtsdkrepository/windows_x86/desktop/qt5_5150/qt.qt5.5150.win32_msvc2019/5.15.0-0-202005150700qtbase-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86.7z' 
+  - curl.exe -LJ -o qt-tools.7z       'https://qt-mirror.dannhauer.de//online/qtsdkrepository/windows_x86/desktop/qt5_5150/qt.qt5.5150.win32_msvc2019/5.15.0-0-202005150700qttools-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86.7z'
+  - curl.exe -LJ -o qt-webengine.7z   'https://qt-mirror.dannhauer.de//online/qtsdkrepository/windows_x86/desktop/qt5_5150/qt.qt5.5150.qtwebengine.win32_msvc2019/5.15.0-0-202005150700qtwebengine-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86.7z'
+  - curl.exe -LJ -o qt-webchannel.7z  'https://qt-mirror.dannhauer.de//online/qtsdkrepository/windows_x86/desktop/qt5_5150/qt.qt5.5150.win32_msvc2019/5.15.0-0-202005150700qtwebchannel-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86.7z'
+  - curl.exe -LJ -o qt-declare.7z     'https://qt-mirror.dannhauer.de//online/qtsdkrepository/windows_x86/desktop/qt5_5150/qt.qt5.5150.win32_msvc2019/5.15.0-0-202005150700qtdeclarative-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86.7z'
+  - curl.exe -LJ -o qt-location.7z    'https://qt-mirror.dannhauer.de//online/qtsdkrepository/windows_x86/desktop/qt5_5150/qt.qt5.5150.win32_msvc2019/5.15.0-0-202005150700qtlocation-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86.7z'
+  - _fold_final_
+  
+  - _fold_start_ 'extracting the downloaded qt binaries'
+  - 7z x qt-base.7z        '-o../_qt' -y
+  - 7z x qt-tools.7z       '-o../_qt' -y
+  - 7z x qt-webengine.7z   '-o../_qt' -y
+  - 7z x qt-webchannel.7z  '-o../_qt' -y
+  - 7z x qt-declare.7z     '-o../_qt' -y
+  - 7z x qt-location.7z    '-o../_qt' -y
+  - _fold_final_
+  
+  - _fold_start_ 'turn the qt install from enterprise to foss; remove the licensing checks'
+  - ${qconfig-pri-folder} = '..\_qt\5.15.0\msvc2019\mkspecs\qconfig.pri'
+  - (Get-Content ${qconfig-pri-folder}).replace('QT_EDITION = Enterprise', 'QT_EDITION = OpenSource') | Set-Content ${qconfig-pri-folder}
+  - (Get-Content ${qconfig-pri-folder}).replace('QT_LICHECK = licheck.exe', '')                       | Set-Content ${qconfig-pri-folder}
+  - Pop-Location
+  - _fold_final_
+  
+  - _fold_start_ "Find the .pro's name"
+  - ${PATHCLEAN} = (dir *.pro)
+  - ${TOCLEAN} = (${PATHCLEAN} -replace '.*\\' , '')
+  - ${FNAME} = (${TOCLEAN} -replace '.pro.','.pro')
+  - _fold_final_
+
+  - _fold_start_ 'run qmake and generate the msvc nmake makefile'
+  - mkdir _build; cd _build
+  - ..\_qt\5.15.0\msvc2019\bin\qmake ../${FNAME}
+  - _fold_final_
+  
+  - _fold_start_ 'start the actual build with jom instead of nmake; for speed'
+  - nmake
+  - _fold_final_
+
+  - _fold_start_ 'Copy Qt5Network to distrobution folder'
+  - - if (${FNAME} -contains 'Update'){cp ..\_qt\5.15.0\msvc2019\bin\Qt5Network.dll release}
+  - _fold_final_
+
+  - _fold_start_ 'Preparing artifact'  
+  - mv release/OpenRGBSamplePlugin.dll ../
+  - _fold_final_
+
+  artifacts:
+    name: "${CI_PROJECT_NAME}_Windows_32_${CI_COMMIT_SHORT_SHA}"
+    paths:
+    - OpenRGBSamplePlugin.dll
+    expire_in: 30 days
+
+#-----------------------------------------------------------------------#
+# Windows (64-bit) Build Target                                         #
+#-----------------------------------------------------------------------#
+"Windows 64":
+  extends:
+  - .shared_windows_runners
+  stage: build
+  script:
+  - $esc = "$([char]27)"
+  - $count = 0
+  - function _unix_tmsec_ { [int64](([datetime]::UtcNow)-(get-date "1/1/1970")).TotalSeconds }
+  - function _fold_start_ { param( [string]$TEXT_TAG ) $t=_unix_tmsec_; $global:count += 1; Write-Host -NoNewLine "`r`n`r`nsection_start:${t}:sect_${count}`r${esc}[0K${esc}[33m${TEXT_TAG}${esc}[39m`r`n"; }
+  - function _fold_final_ {                            $t=_unix_tmsec_;                     Write-Host -NoNewLine   "`r`n`r`nsection_end:${t}:sect_${count}`r${esc}[0K`r`n"           ; }
+
+  - _fold_start_ 'configuring the msvc environment variables'
+  - Push-Location "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Auxiliary/Build"
+  - '& cmd.exe /C "vcvarsall.bat x64 & set" | Foreach-Object { if ($_ -match "(.*?)=(.*)") { Set-Item -force -path "Env:\$($matches[1])" -value "$($matches[2])" } }'
+  - Pop-Location
+  - _fold_final_
+  
+  - _fold_start_ 'downloading precompiled versions of qtbase, qttools (for windeployqt) and jom (for a more parallel nmake)'
+  - mkdir _qt
+  - mkdir _qt_download
+  - Push-Location _qt_download
+  - curl.exe -LJ -o qt-base.7z        'https://qt-mirror.dannhauer.de//online/qtsdkrepository/windows_x86/desktop/qt5_5150/qt.qt5.5150.win64_msvc2019_64/5.15.0-0-202005150700qtbase-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z' 
+  - curl.exe -LJ -o qt-tools.7z       'https://qt-mirror.dannhauer.de//online/qtsdkrepository/windows_x86/desktop/qt5_5150/qt.qt5.5150.win64_msvc2019_64/5.15.0-0-202005150700qttools-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z'
+  - curl.exe -LJ -o qt-webengine.7z   'https://qt-mirror.dannhauer.de//online/qtsdkrepository/windows_x86/desktop/qt5_5150/qt.qt5.5150.qtwebengine.win64_msvc2019_64/5.15.0-0-202005150700qtwebengine-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z'
+  - curl.exe -LJ -o qt-webchannel.7z  'https://qt-mirror.dannhauer.de//online/qtsdkrepository/windows_x86/desktop/qt5_5150/qt.qt5.5150.win64_msvc2019_64/5.15.0-0-202005150700qtwebchannel-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z'
+  - curl.exe -LJ -o qt-declare.7z     'https://qt-mirror.dannhauer.de//online/qtsdkrepository/windows_x86/desktop/qt5_5150/qt.qt5.5150.win64_msvc2019_64/5.15.0-0-202005150700qtdeclarative-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z'
+  - curl.exe -LJ -o qt-location.7z    'https://qt-mirror.dannhauer.de//online/qtsdkrepository/windows_x86/desktop/qt5_5150/qt.qt5.5150.win64_msvc2019_64/5.15.0-0-202005150700qtlocation-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z'
+  - _fold_final_
+
+  
+
+  - _fold_start_ 'extracting the downloaded qt binaries'
+  - 7z x qt-base.7z        '-o../_qt' -y
+  - 7z x qt-tools.7z       '-o../_qt' -y
+  - 7z x qt-webengine.7z   '-o../_qt' -y
+  - 7z x qt-webchannel.7z  '-o../_qt' -y
+  - 7z x qt-declare.7z     '-o../_qt' -y
+  - 7z x qt-location.7z    '-o../_qt' -y
+  - _fold_final_
+  
+  - _fold_start_ 'turn the qt install from enterprise to foss; remove the licensing checks'
+  - ${qconfig-pri-folder} = '..\_qt\5.15.0\msvc2019_64\mkspecs\qconfig.pri'
+  - (Get-Content ${qconfig-pri-folder}).replace('QT_EDITION = Enterprise', 'QT_EDITION = OpenSource') | Set-Content ${qconfig-pri-folder}
+  - (Get-Content ${qconfig-pri-folder}).replace('QT_LICHECK = licheck.exe', '')                       | Set-Content ${qconfig-pri-folder}
+  - Pop-Location
+  - _fold_final_
+  
+  - _fold_start_ "Find the .pro's name"
+  - ${PATHCLEAN} = (dir *.pro)
+  - ${TOCLEAN} = (${PATHCLEAN} -replace '.*\\' , '')
+  - ${FNAME} = (${TOCLEAN} -replace '.pro.','.pro')
+  - _fold_final_
+
+  - _fold_start_ 'run qmake and generate the msvc nmake makefile'
+  - mkdir _build; cd _build
+  - ..\_qt\5.15.0\msvc2019_64\bin\qmake ../${FNAME}
+  - _fold_final_
+  
+  - _fold_start_ 'start the actual build with jom instead of nmake; for speed'
+  - nmake
+  - _fold_final_
+
+  - _fold_start_ 'Copy Qt5Network to distrobution folder if it matches a string'
+  - if (${FNAME} -contains 'Update'){cp ..\_qt\5.15.0\msvc2019_64\bin\Qt5Network.dll release}
+  - _fold_final_
+
+  - _fold_start_ 'Preparing artifact'  
+  - mv release/OpenRGBSamplePlugin.dll ../
+  - _fold_final_
+
+  artifacts:
+    name: "${CI_PROJECT_NAME}_Windows_64_${CI_COMMIT_SHORT_SHA}"
+    paths:
+    - OpenRGBSamplePlugin.dll
+    expire_in: 30 days
+
+#-----------------------------------------------------------------------#
+# MacOS Build Target                                                    #
+#-----------------------------------------------------------------------#
+"MacOS ARM64":
+  tags:
+  - macos
+  stage: build
+  script:
+  - eval $(/opt/homebrew/bin/brew shellenv)
+  - qmake OpenRGBSamplePlugin.pro
+  - make -j16
+  - install_name_tool libOpenRGBSamplePlugin.1.0.0.dylib -change /opt/homebrew/opt/qt@5/lib/QtWidgets.framework/Versions/5/QtWidgets @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets
+  - install_name_tool libOpenRGBSamplePlugin.1.0.0.dylib -change /opt/homebrew/opt/qt@5/lib/QtGui.framework/Versions/5/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui
+  - install_name_tool libOpenRGBSamplePlugin.1.0.0.dylib -change /opt/homebrew/opt/qt@5/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore
+  - codesign --force --verify -s OpenRGB libOpenRGBSamplePlugin.1.0.0.dylib
+
+  artifacts:
+    name: "${CI_PROJECT_NAME}_MacOS_ARM64_${CI_COMMIT_SHORT_SHA}"
+    paths:
+    - libOpenRGBSamplePlugin.1.0.0.dylib
+    expire_in: 30 days
+
+  rules:
+  - if: '$CI_PROJECT_PATH == "OpenRGBDevelopers/OpenRGBSamplePlugin"'
+    when: on_success
+  - if: '$BUILD_MACOS =~ /.+/'
+    when: on_success
+
+"MacOS Intel":
+  tags:
+  - macos
+  stage: build
+  script:
+  - eval $(/usr/local/bin/brew shellenv)
+  - arch -x86_64 /usr/local/bin/qmake OpenRGBSamplePlugin.pro
+  - arch -x86_64 make -j16
+  - arch -x86_64 install_name_tool libOpenRGBSamplePlugin.1.0.0.dylib -change /usr/local/bin/opt/qt@5/lib/QtWidgets.framework/Versions/5/QtWidgets @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets
+  - arch -x86_64 install_name_tool libOpenRGBSamplePlugin.1.0.0.dylib -change /usr/local/bin/opt/qt@5/lib/QtGui.framework/Versions/5/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui
+  - arch -x86_64 install_name_tool libOpenRGBSamplePlugin.1.0.0.dylib -change /usr/local/bin/opt/qt@5/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore
+  - arch -x86_64 codesign --force --verify -s OpenRGB libOpenRGBSamplePlugin.1.0.0.dylib
+  
+  artifacts:
+    name: "${CI_PROJECT_NAME}_MacOS_Intel_${CI_COMMIT_SHORT_SHA}"
+    paths:
+    - libOpenRGBSamplePlugin.1.0.0.dylib
+    expire_in: 30 days
+
+  rules:
+  - if: '$CI_PROJECT_PATH == "OpenRGBDevelopers/OpenRGBSamplePlugin"'
+    when: on_success
+  - if: '$BUILD_MACOS =~ /.+/'
+    when: on_success

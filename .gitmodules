@@ -1,0 +1,4 @@
+[submodule "OpenRGB"]
+	path = OpenRGB
+	url = https://gitlab.com/CalcProgrammer1/OpenRGB.git
+	branch = master

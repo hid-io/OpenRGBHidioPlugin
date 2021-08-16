@@ -1,13 +1,11 @@
 #!/bin/bash
 
 #-----------------------------------------------------------------------#
-# OpenRGB E1.31 Receiver Plugin Build Script                            #
+# Sample Plugin Build Script                                            #
 #-----------------------------------------------------------------------#
 
-#set -x
-#set -e
-
-source /opt/qt512/bin/qt512-env.sh
+set -x
+set -e
 
 #-----------------------------------------------------------------------#
 # Configure build files with qmake                                      #

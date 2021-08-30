@@ -16,11 +16,20 @@ class OpenRGBSamplePlugin : public QObject, public OpenRGBPluginInterface
     Q_INTERFACES(OpenRGBPluginInterface)
 
 public:
-    ~OpenRGBSamplePlugin() {};
+    ~OpenRGBSamplePlugin();
 
-    OpenRGBPluginInfo       PInfo;
-    OpenRGBPluginInfo       Initialize(bool, ResourceManager*)   override;
-    QWidget*                CreateGUI(QWidget *Parent)           override;
+    OpenRGBPluginInfo   GetPluginInfo() override;
+    unsigned int        GetPluginAPIVersion() override;
+
+    void                Load(bool dark_theme, ResourceManager* resource_manager_ptr) override;
+    QWidget*            GetWidget() override;
+    QMenu*              GetTrayMenu() override;
+    void                Unload() override;
+
+
+//    OpenRGBPluginInfo       PInfo;
+//    OpenRGBPluginInfo       Initialize(bool, ResourceManager*)   override;
+//    QWidget*                CreateGUI(QWidget *Parent)           override;
     static bool             DarkTheme;
     static ResourceManager* RMPointer;
 

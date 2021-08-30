@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>OpenRGBSamplePlugin.png</file>
+    </qresource>
+</RCC>

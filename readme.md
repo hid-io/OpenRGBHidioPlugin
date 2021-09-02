@@ -20,3 +20,7 @@ This is some boilerplate code that ease plugin writing for [OpenRGB](https://git
 * Download and extract the correct files depending on your system
 * Launch OpenRGB
 * From the Settings -> Plugins menu, click the "Install plugin" button
+
+## Making your own plugin
+
+If you want to write your own plugin, follow this [guide](./CONTRIBUTING.md)

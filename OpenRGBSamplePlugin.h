@@ -16,6 +16,7 @@ class OpenRGBSamplePlugin : public QObject, public OpenRGBPluginInterface
     Q_INTERFACES(OpenRGBPluginInterface)
 
 public:
+    OpenRGBSamplePlugin();
     ~OpenRGBSamplePlugin();
 
     OpenRGBPluginInfo   GetPluginInfo() override;

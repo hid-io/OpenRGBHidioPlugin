@@ -67,6 +67,11 @@ void OpenRGBSamplePlugin::Unload()
     printf("[OpenRGBSamplePlugin] Time to call some cleaning stuff.\n");
 }
 
+OpenRGBSamplePlugin::OpenRGBSamplePlugin()
+{
+    printf("[OpenRGBSamplePlugin] Constructor.\n");
+}
+
 OpenRGBSamplePlugin::~OpenRGBSamplePlugin()
 {
      printf("[OpenRGBSamplePlugin] Time to free some memory.\n");

@@ -2,7 +2,34 @@
 
 OpenRGB has a plugin system that allows to add some features. This system will give the plugin access to the devices, the profile management and the SDK server.
 
-## The plugin interface
+## Setting up a new project
+
+Clone this repository
+
+```
+git clone git@gitlab.com:OpenRGBDevelopers/OpenRGBSamplePlugin.git
+```
+
+Rename all occurences of "OpenRGBSamplePlugin" you will find in the code with the name of your plugin. (You are also free to keep the names, it will compile just fine, but im sure you donnt want to!)
+
+Make sure it compiles and try it before you go any further.
+
+## Main concepts
+
+A plugin is basically some c++ code with Qt integration.
+
+There is only one class that your plugin should inherit (OpenRGBPluginInterface), the rest of the plugin code is totally up to you.
+
+A plugin has a life cycle: 
+
+- First, it's loaded and asked for the PLUGIN API version in use. 
+- Then, it has to create a widget and a tray menu (optional).
+- The plugin is now able to run itself and do some cool stuff (update the leds, load profiles, interact with any other APIs)
+- When the user disable the plugin, the Unload method is called, then the destructor is called.
+
+![lifecycle](./plugin-lifecycle.png)
+
+## The plugin interface
 
 ```
 class OpenRGBPluginInterface

@@ -28,7 +28,7 @@ unsigned int OpenRGBSamplePlugin::GetPluginAPIVersion()
 {
     printf("[OpenRGBSamplePlugin] Loading plugin API version.\n");
 
-    return 1;
+    return OPENRGB_PLUGIN_API_VERSION;
 }
 
 void OpenRGBSamplePlugin::Load(bool dark_theme, ResourceManager* resource_manager_ptr)

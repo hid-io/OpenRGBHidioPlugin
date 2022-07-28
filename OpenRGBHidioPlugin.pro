@@ -52,10 +52,10 @@ INCLUDEPATH +=                                                                  
 HEADERS +=                                                                                      \
     OpenRGB/OpenRGBPluginInterface.h                                                            \
     OpenRGB/ResourceManager.h                                                                   \
-    OpenRGBSamplePlugin.h                                                                       \
+    OpenRGBHidioPlugin.h                                                                       \
 
 SOURCES +=                                                                                      \
-    OpenRGBSamplePlugin.cpp                                                                     \
+    OpenRGBHidioPlugin.cpp                                                                     \
 
 #-------------------------------------------------------------------#
 # Windows GitLab CI Configuration                                   #

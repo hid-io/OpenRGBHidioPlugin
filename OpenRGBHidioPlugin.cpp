@@ -1,4 +1,4 @@
-#include "OpenRGBSamplePlugin.h"
+#include "OpenRGBHidioPlugin.h"
 #include <QHBoxLayout>
 
 bool OpenRGBSamplePlugin::DarkTheme = false;

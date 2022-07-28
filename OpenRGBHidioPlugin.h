@@ -9,15 +9,15 @@
 #include <QtPlugin>
 #include <QWidget>
 
-class OpenRGBSamplePlugin : public QObject, public OpenRGBPluginInterface
+class OpenRGBHidioPlugin : public QObject, public OpenRGBPluginInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID OpenRGBPluginInterface_IID)
     Q_INTERFACES(OpenRGBPluginInterface)
 
 public:
-    OpenRGBSamplePlugin();
-    ~OpenRGBSamplePlugin();
+    OpenRGBHidioPlugin();
+    ~OpenRGBHidioPlugin();
 
     OpenRGBPluginInfo   GetPluginInfo() override;
     unsigned int        GetPluginAPIVersion() override;

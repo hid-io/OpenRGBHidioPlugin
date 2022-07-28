@@ -1,13 +1,14 @@
-# Sample Plugin 
+# OpenRGB HID-IO Plugin
 
-[![pipeline status](https://gitlab.com/OpenRGBDevelopers/OpenRGBSamplePlugin/badges/master/pipeline.svg)](https://gitlab.com/OpenRGBDevelopers/OpenRGBSamplePlugin/-/commits/master)
+Basic OpenRGB interface for HID-IO supported keyboards.
 
-## What is this?
+## Features
 
-This is some boilerplate code that ease plugin writing for [OpenRGB](https://gitlab.com/CalcProgrammer1/OpenRGB).
+- TODO
 
 ## Downloads
 
+TODO
 * [Windows 32](https://gitlab.com/OpenRGBDevelopers/OpenRGBSamplePlugin/-/jobs/artifacts/master/download?job=Windows%2032)
 * [Windows 64](https://gitlab.com/OpenRGBDevelopers/OpenRGBSamplePlugin/-/jobs/artifacts/master/download?job=Windows%2064)
 * [Linux 32](https://gitlab.com/OpenRGBDevelopers/OpenRGBSamplePlugin/-/jobs/artifacts/master/download?job=Linux%2032)
@@ -20,7 +21,3 @@ This is some boilerplate code that ease plugin writing for [OpenRGB](https://git
 * Download and extract the correct files depending on your system
 * Launch OpenRGB
 * From the Settings -> Plugins menu, click the "Install plugin" button
-
-## Making your own plugin
-
-If you want to write your own plugin, follow this [guide](./CONTRIBUTING.md)

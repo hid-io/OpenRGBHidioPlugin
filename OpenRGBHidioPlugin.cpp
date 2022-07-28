@@ -1,48 +1,48 @@
 #include "OpenRGBHidioPlugin.h"
 #include <QHBoxLayout>
 
-bool OpenRGBSamplePlugin::DarkTheme = false;
-ResourceManager* OpenRGBSamplePlugin::RMPointer = nullptr;
+bool OpenRGBHidioPlugin::DarkTheme = false;
+ResourceManager* OpenRGBHidioPlugin::RMPointer = nullptr;
 
-OpenRGBPluginInfo OpenRGBSamplePlugin::GetPluginInfo()
+OpenRGBPluginInfo OpenRGBHidioPlugin::GetPluginInfo()
 {
-    printf("[OpenRGBSamplePlugin] Loading plugin info.\n");
+    printf("[OpenRGBHidioPlugin] Loading plugin info.\n");
 
     OpenRGBPluginInfo info;
-    info.Name         = "Sample plugin";
-    info.Description  = "Allo allo";
-    info.Version  = VERSION_STRING;
-    info.Commit  = GIT_COMMIT_ID;
-    info.URL  = "https://gitlab.com/OpenRGBDevelopers/sample-plugin";
-    info.Icon.load(":/OpenRGBSamplePlugin.png");
+    info.Name = "HID-IO";
+    info.Description = "The hid-io plugin uses the Cap'n'Proto API interface to communicate with hid-io supported input devices.";
+    info.Version = VERSION_STRING;
+    info.Commit = GIT_COMMIT_ID;
+    info.URL = "https://github.com/hid-io/OpenRGBHidioPlugin";
+    info.Icon.load(":/OpenRGBHidioPlugin.png");
 
-    info.Location     =  OPENRGB_PLUGIN_LOCATION_TOP;
-    info.Label        =  "Sample plugin";
-    info.TabIconString        =  "Sample plugin";
-    info.TabIcon.load(":/OpenRGBSamplePlugin.png");
+    info.Location = OPENRGB_PLUGIN_LOCATION_TOP;
+    info.Label = "HID-IO";
+    info.TabIconString = "HID-IO";
+    info.TabIcon.load(":/OpenRGBHidioPlugin.png");
 
     return info;
 }
 
-unsigned int OpenRGBSamplePlugin::GetPluginAPIVersion()
+unsigned int OpenRGBHidioPlugin::GetPluginAPIVersion()
 {
-    printf("[OpenRGBSamplePlugin] Loading plugin API version.\n");
+    printf("[OpenRGBHidioPlugin] Loading plugin API version.\n");
 
     return OPENRGB_PLUGIN_API_VERSION;
 }
 
-void OpenRGBSamplePlugin::Load(bool dark_theme, ResourceManager* resource_manager_ptr)
+void OpenRGBHidioPlugin::Load(bool dark_theme, ResourceManager* resource_manager_ptr)
 {
-    printf("[OpenRGBSamplePlugin] Loading plugin.\n");
+    printf("[OpenRGBHidioPlugin] Loading plugin.\n");
 
     RMPointer                = resource_manager_ptr;
     DarkTheme                = dark_theme;
 }
 
 
-QWidget* OpenRGBSamplePlugin::GetWidget()
+QWidget* OpenRGBHidioPlugin::GetWidget()
 {
-    printf("[OpenRGBSamplePlugin] Creating widget.\n");
+    printf("[OpenRGBHidioPlugin] Creating widget.\n");
 
     QWidget* widget =  new QWidget(nullptr);
     QHBoxLayout* layout = new QHBoxLayout();
@@ -53,27 +53,27 @@ QWidget* OpenRGBSamplePlugin::GetWidget()
     return widget;
 }
 
-QMenu* OpenRGBSamplePlugin::GetTrayMenu()
+QMenu* OpenRGBHidioPlugin::GetTrayMenu()
 {
-    printf("[OpenRGBSamplePlugin] Creating tray menu.\n");
+    printf("[OpenRGBHidioPlugin] Creating tray menu.\n");
 
     QMenu* menu = new QMenu("Sample plugin");
 
     return menu;
 }
 
-void OpenRGBSamplePlugin::Unload()
+void OpenRGBHidioPlugin::Unload()
 {
-    printf("[OpenRGBSamplePlugin] Time to call some cleaning stuff.\n");
+    printf("[OpenRGBHidioPlugin] Time to call some cleaning stuff.\n");
 }
 
-OpenRGBSamplePlugin::OpenRGBSamplePlugin()
+OpenRGBHidioPlugin::OpenRGBHidioPlugin()
 {
-    printf("[OpenRGBSamplePlugin] Constructor.\n");
+    printf("[OpenRGBHidioPlugin] Constructor.\n");
 }
 
-OpenRGBSamplePlugin::~OpenRGBSamplePlugin()
+OpenRGBHidioPlugin::~OpenRGBHidioPlugin()
 {
-     printf("[OpenRGBSamplePlugin] Time to free some memory.\n");
+     printf("[OpenRGBHidioPlugin] Time to free some memory.\n");
 }
 

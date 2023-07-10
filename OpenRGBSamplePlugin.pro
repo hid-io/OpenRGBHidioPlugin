@@ -49,6 +49,7 @@ INCLUDEPATH +=                                                                  
     OpenRGB/net_port                                                                            \
     OpenRGB/dependencies/json                                                                   \
     OpenRGB/hidapi_wrapper                                                                      \
+    OpenRGB/dependencies/hidapi                                                                 \
 
 HEADERS +=                                                                                      \
     OpenRGB/OpenRGBPluginInterface.h                                                            \

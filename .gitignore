@@ -10,3 +10,7 @@ OpenRGB-x86_64.AppImage
 build
 Ship
 www/*
+
+# Rust ignore files
+Cargo.lock
+rust/target

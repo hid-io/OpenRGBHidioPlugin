@@ -4,12 +4,16 @@
 #include "OpenRGBPluginInterface.h"
 #include "ResourceManager.h"
 
-#include <QObject>
-#include <QString>
-#include <QtPlugin>
-#include <QWidget>
+#undef u8
+#undef u16
+#undef u32
+#undef s32
 
-class OpenRGBSamplePlugin : public QObject, public OpenRGBPluginInterface
+#include <QtQml/QQmlExtensionPlugin>
+
+#include "cxx-qt-gen/my_object.cxxqt.h"
+
+class OpenRGBSamplePlugin : public QQmlExtensionPlugin, public OpenRGBPluginInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID OpenRGBPluginInterface_IID)
@@ -26,14 +30,13 @@ public:
     QWidget*            GetWidget() override;
     QMenu*              GetTrayMenu() override;
     void                Unload() override;
-
+    void                registerTypes(const char* uri) override;
 
 //    OpenRGBPluginInfo       PInfo;
 //    OpenRGBPluginInfo       Initialize(bool, ResourceManager*)   override;
 //    QWidget*                CreateGUI(QWidget *Parent)           override;
     static bool             DarkTheme;
     static ResourceManager* RMPointer;
-
 };
 
 #endif // OPENRGBSAMPLEPLUGIN_H

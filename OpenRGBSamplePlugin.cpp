@@ -1,5 +1,5 @@
 #include "OpenRGBSamplePlugin.h"
-#include <QHBoxLayout>
+#include <QQuickWidget>
 
 bool OpenRGBSamplePlugin::DarkTheme = false;
 ResourceManager* OpenRGBSamplePlugin::RMPointer = nullptr;
@@ -11,8 +11,8 @@ OpenRGBPluginInfo OpenRGBSamplePlugin::GetPluginInfo()
     OpenRGBPluginInfo info;
     info.Name         = "Sample plugin";
     info.Description  = "Allo allo";
-    info.Version  = VERSION_STRING;
-    info.Commit  = GIT_COMMIT_ID;
+    info.Version  = "1234";
+    info.Commit  = "5678";
     info.URL  = "https://gitlab.com/OpenRGBDevelopers/sample-plugin";
     info.Icon.load(":/OpenRGBSamplePlugin.png");
 
@@ -35,8 +35,8 @@ void OpenRGBSamplePlugin::Load(bool dark_theme, ResourceManager* resource_manage
 {
     printf("[OpenRGBSamplePlugin] Loading plugin.\n");
 
-    RMPointer                = resource_manager_ptr;
-    DarkTheme                = dark_theme;
+    RMPointer = resource_manager_ptr;
+    DarkTheme = dark_theme;
 }
 
 
@@ -44,12 +44,10 @@ QWidget* OpenRGBSamplePlugin::GetWidget()
 {
     printf("[OpenRGBSamplePlugin] Creating widget.\n");
 
-    QWidget* widget =  new QWidget(nullptr);
-    QHBoxLayout* layout = new QHBoxLayout();
-
-    widget->setLayout(layout);
-    layout->addWidget(new QLabel("Allo, allo?"));
-
+    registerTypes("org.openrgb.plugin.rust_sample");
+    QQuickWidget* widget = new QQuickWidget();
+    widget->setSource(QUrl("qrc:/qml/main.qml"));
+    widget->setResizeMode(QQuickWidget::SizeRootObjectToView); // Resize to fit the plugin view
     return widget;
 }
 
@@ -77,3 +75,10 @@ OpenRGBSamplePlugin::~OpenRGBSamplePlugin()
      printf("[OpenRGBSamplePlugin] Time to free some memory.\n");
 }
 
+void OpenRGBSamplePlugin::registerTypes(const char* uri)
+{
+    printf("[OpenRGBSamplePlugin] Registering types.\n");
+    qmlRegisterType<core::MyObject>(uri, 1, 0, "MyObject");
+}
+
+#include "moc_OpenRGBSamplePlugin.cpp"

@@ -1,0 +1,3 @@
+module org.openrgb.plugin.rust_sample
+plugin core_qmlplugin
+class_name CoreQmlpluginPlugin

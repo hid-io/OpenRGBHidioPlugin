@@ -1,5 +1,13 @@
-// Adapted from: https://github.com/KDAB/cxx-qt/blob/v0.5.3/examples/qml_extension_plugin/plugin/rust/src/lib.rs
+extern crate tokio;
+
 use serde::{Deserialize, Serialize};
+use tokio::runtime::Runtime;
+
+use hid_io_client::capnp;
+use hid_io_client::common_capnp::NodeType;
+use hid_io_client::setup_logging_lite;
+use rand::Rng;
+
 
 // Represent the data within the QObject below with serde friendly types, so we can (de)serialize it
 #[derive(Deserialize, Serialize)]
@@ -21,7 +29,8 @@ const DEFAULT_STR: &str = r#"{"number": 1, "string": "Hello World!"}"#;
 
 #[cxx_qt::bridge(cxx_file_stem = "my_object", namespace = "core")]
 mod ffi {
-    use super::{DataSerde, DEFAULT_STR};
+    use super::*;
+    //use super::{DataSerde, DEFAULT_STR};
 
     #[namespace = ""]
     unsafe extern "C++" {
@@ -71,6 +80,11 @@ mod ffi {
         pub fn serialize(&self) -> QString {
             let data_serde = DataSerde::from(self.rust());
             let data_string = serde_json::to_string(&data_serde).unwrap();
+            let rt = Runtime::new().unwrap();
+            let _ = rt.block_on(async {
+                setup_logging_lite().ok();
+                tokio::task::LocalSet::new().run_until(try_main()).await
+            });
             QString::from(&data_string)
         }
 
@@ -82,4 +96,37 @@ mod ffi {
             self.as_mut().set_string(QString::from(&data.string));
         }
     }
+}
+
+async fn try_main() -> Result<(), capnp::Error> {
+    // Prepare hid-io-core connection
+    let mut hidio_conn = hid_io_client::HidioConnection::new().unwrap();
+    let mut rng = rand::thread_rng();
+
+    // Connect and authenticate with hid-io-core
+    let (hidio_auth, _hidio_server) = hidio_conn
+        .connect(
+            hid_io_client::AuthType::Priviledged,
+            NodeType::HidioApi,
+            "lsnodes".to_string(),
+            format!("{:x} - pid:{}", rng.gen::<u64>(), std::process::id()),
+            true,
+            std::time::Duration::from_millis(1000),
+        )
+        .await?;
+    let hidio_auth = hidio_auth.expect("Could not authenticate to hid-io-core");
+
+    let nodes_resp = {
+        let request = hidio_auth.nodes_request();
+        request.send().promise.await?
+    };
+    let nodes = nodes_resp.get()?.get_nodes()?;
+
+    println!();
+    for n in nodes {
+        println!(" * {} - {}", n.get_id(), hid_io_client::format_node(n));
+    }
+
+    hidio_conn.disconnect().await?;
+    Ok(())
 }

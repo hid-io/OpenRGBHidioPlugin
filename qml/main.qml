@@ -55,6 +55,11 @@ Rectangle {
             onClicked: seralizedLabel.text = myObject.serialize()
         }
 
+				Button {
+				    text: "hid-io lsnodes"
+						onClicked: seralizedLabel.text = myObject.lsnodes()
+				}
+
         Label {
             id: seralizedLabel
         }

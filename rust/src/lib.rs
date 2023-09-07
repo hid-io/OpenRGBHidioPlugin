@@ -80,11 +80,6 @@ mod ffi {
         pub fn serialize(&self) -> QString {
             let data_serde = DataSerde::from(self.rust());
             let data_string = serde_json::to_string(&data_serde).unwrap();
-            let rt = Runtime::new().unwrap();
-            let _ = rt.block_on(async {
-                setup_logging_lite().ok();
-                tokio::task::LocalSet::new().run_until(try_main()).await
-            });
             QString::from(&data_string)
         }
 
@@ -95,10 +90,21 @@ mod ffi {
             self.as_mut().set_number(data.number);
             self.as_mut().set_string(QString::from(&data.string));
         }
+
+        #[qinvokable]
+        pub fn lsnodes(&self) -> QString {
+            let rt = Runtime::new().unwrap();
+            let val = rt.block_on(async {
+                setup_logging_lite().ok();
+                tokio::task::LocalSet::new().run_until(lsnodes()).await.unwrap()
+            });
+            let output = val.join("\n");
+            QString::from(output.as_str())
+        }
     }
 }
 
-async fn try_main() -> Result<(), capnp::Error> {
+async fn lsnodes() -> Result<Vec<String>, capnp::Error> {
     // Prepare hid-io-core connection
     let mut hidio_conn = hid_io_client::HidioConnection::new().unwrap();
     let mut rng = rand::thread_rng();
@@ -122,11 +128,11 @@ async fn try_main() -> Result<(), capnp::Error> {
     };
     let nodes = nodes_resp.get()?.get_nodes()?;
 
-    println!();
+    let mut outval = Vec::new();
     for n in nodes {
-        println!(" * {} - {}", n.get_id(), hid_io_client::format_node(n));
+        outval.push(format!(" * {} - {}", n.get_id(), hid_io_client::format_node(n)));
     }
 
     hidio_conn.disconnect().await?;
-    Ok(())
+    Ok(outval)
 }

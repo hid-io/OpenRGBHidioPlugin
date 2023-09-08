@@ -1,4 +1,12 @@
-# Sample Rust Plugin 
+# HID-IO OpenRGB Plugin
+
+[HID-IO](https://github.com/hid-io/hid-io-core) Plugin for OpenRGB.
+
+## Notes
+
+- Requires hid-io-core daemon to be running in the background (OpenRGB does not directly control HID-IO keyboards).
+- This plugin uses capnproto to communicate with hid-io-core, hid-io-core usually uses the hid-io protocol to communicate with devices.
+- Very early development stages (pre-alpha quality)
 
 ## What is this?
 

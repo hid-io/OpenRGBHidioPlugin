@@ -1,5 +1,5 @@
 [package]
-name = "openrgb-sample-plugin-rust"
+name = "openrgb-hidio-plugin-rust"
 version = "0.1.0"
 authors = ["Jacob Alexander <haata@kiibohd.com>"]
 edition = "2021"

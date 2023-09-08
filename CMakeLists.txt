@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(openrgb-sample-plugin)
+project(openrgb-hidio-plugin)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -35,11 +35,11 @@ include_directories(
 
 # Setup qml files
 set(QML_IMPORT_DIR ${CMAKE_CURRENT_BINARY_DIR}/qml)
-set(PLUGIN_OUTPUT_DIR ${QML_IMPORT_DIR}/org/openrgb/plugin/rust_sample)
+set(PLUGIN_OUTPUT_DIR ${QML_IMPORT_DIR}/com/hidio/openrgb/plugin)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/qmldir ${PLUGIN_OUTPUT_DIR}/qmldir COPYONLY)
 
 # Build Rust library
-set(CRATE openrgb-sample-plugin-rust)
+set(CRATE openrgb-hidio-plugin-rust)
 corrosion_import_crate(MANIFEST_PATH rust/Cargo.toml CRATES ${CRATE})
 set(CXXQT_EXPORT_DIR "${CMAKE_CURRENT_BINARY_DIR}/cxxqt")
 corrosion_set_env_vars(${CRATE}
@@ -49,7 +49,7 @@ corrosion_set_env_vars(${CRATE}
 target_include_directories(${CRATE} INTERFACE "${CXXQT_EXPORT_DIR}/${CRATE}")
 
 # Define the OpenRGB plugin library
-add_library(${PROJECT_NAME} SHARED OpenRGBSamplePlugin.cpp resources.qrc)
+add_library(${PROJECT_NAME} SHARED OpenRGBHIDIOPlugin.cpp resources.qrc)
 
 # Link to Rust library and Qt
 target_link_libraries(${PROJECT_NAME} PRIVATE

@@ -1,7 +1,7 @@
 // Adapted from https://github.com/KDAB/cxx-qt/blob/v0.5.3/examples/qml_extension_plugin/qml/main.qml
 import QtQuick 2.12
 import QtQuick.Controls 2.12
-import org.openrgb.plugin.rust_sample 1.0
+import com.hidio.openrgb.plugin 1.0
 
 Rectangle {
     color: "lightgray"

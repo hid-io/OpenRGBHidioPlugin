@@ -14,3 +14,4 @@ www/*
 # Rust ignore files
 Cargo.lock
 rust/target
+target

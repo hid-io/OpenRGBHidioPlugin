@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>OpenRGBSamplePlugin.png</file>
+        <file>hid-io.png</file>
         <file>qml/main.qml</file>
     </qresource>
 </RCC>

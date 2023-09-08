@@ -1,5 +1,5 @@
-#ifndef OPENRGBSAMPLEPLUGIN_H
-#define OPENRGBSAMPLEPLUGIN_H
+#ifndef OPENRGBHIDIOPLUGIN_H
+#define OPENRGBHIDIOPLUGIN_H
 
 #include "OpenRGBPluginInterface.h"
 #include "ResourceManager.h"
@@ -13,15 +13,15 @@
 
 #include "cxx-qt-gen/my_object.cxxqt.h"
 
-class OpenRGBSamplePlugin : public QQmlExtensionPlugin, public OpenRGBPluginInterface
+class OpenRGBHIDIOPlugin : public QQmlExtensionPlugin, public OpenRGBPluginInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID OpenRGBPluginInterface_IID)
     Q_INTERFACES(OpenRGBPluginInterface)
 
 public:
-    OpenRGBSamplePlugin();
-    ~OpenRGBSamplePlugin();
+    OpenRGBHIDIOPlugin();
+    ~OpenRGBHIDIOPlugin();
 
     OpenRGBPluginInfo   GetPluginInfo() override;
     unsigned int        GetPluginAPIVersion() override;
@@ -39,4 +39,4 @@ public:
     static ResourceManager* RMPointer;
 };
 
-#endif // OPENRGBSAMPLEPLUGIN_H
+#endif // OPENRGBHIDIOPLUGIN_H
